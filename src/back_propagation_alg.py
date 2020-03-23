@@ -38,7 +38,7 @@ def back_propagation(pseudo, place, timemax, result):
             back_propagation(chatlog[i - 1][0], place - 1, chatlog[i][1], result)
             back_propagation(chatlog[i + 1][0], place - 1, chatlog[i][1], result)
     
-    if (rec == False and timemax <= time_propagation[0][0]):
+    if (rec == False and timemax <= time_propagation[1][0]):
         print(pseudo)
         #print(result)
         return

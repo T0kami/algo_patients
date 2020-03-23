@@ -42,7 +42,7 @@ class Message:
 
 #Mini parsing du chat en list de message
 def chat_parse(chat):
-    file = open('../data/chatlog.txt', 'r')
+    file = open('../data/chatlog.txt', encoding="utf8")
     lines = file.readlines()
     for line in lines:
         j = 0
@@ -67,11 +67,11 @@ def search_infected(chat, name):
     #print(name, "est infecte")
     for i in range(1, len(chat) - 1):
         if chat[i].name in infected_list:
-            if random.uniform(0, 1) < 0.065 and not (chat[i - 1].name in infected_list):
+            if random.uniform(0, 1) < 0.067 and not (chat[i - 1].name in infected_list):
                 infected_list.append(chat[i - 1].name)
                 #print(chat[i - 1].name, "est infecte par", chat[i].name)
                 infected_tree.append(chat[i].name, chat[i - 1].name)
-            if random.uniform(0, 1) < 0.065 and not (chat[i + 1].name in infected_list):
+            if random.uniform(0, 1) < 0.067 and not (chat[i + 1].name in infected_list):
                 infected_list.append(chat[i + 1].name)
                 #print(chat[i + 1].name, "est infecte par", chat[i].name)
                 infected_tree.append(chat[i].name, chat[i + 1].name)
@@ -81,7 +81,7 @@ def search_infected(chat, name):
 def fill_list(chat):
     name_list = set()
     for message in chat:
-        if message.date > "00:05:00":
+        if "00:20:00"< message.date:
             break
         name_list.add(message.name)
     return name_list
@@ -92,6 +92,7 @@ def main():
     chat_parse(chat)
     #name_list = ["g3nya", "Kao0", "Sarukog", "NahJoTV", "captainfarn", "frenchkowstar", "wollows", "NUCKTROOPER", "snowizz__", "attendspyro", "mrkabo77", "primzen0", "is0phys", "lolix_idontknow"]
     name_list = fill_list(chat)
+    Liste_plus_probable=[]
     print(name_list)
     for name in name_list:
         results_list = []
@@ -99,10 +100,17 @@ def main():
             infected_tree = search_infected(chat, name)
             results_list.append(infected_tree.count())
         results_list.sort()
+        if results_list[len(results_list) // 2]>300:
+            Liste_plus_probable.append(name)
+            fichier=open('../data/Liste_plus_probable.csv', 'a')
+            line=str(name)+ ","+ str(results_list[0])+ ","+ str(results_list[len(results_list) // 2])+ ","+ str(results_list[len(results_list) - 1])+"\n"
+            fichier.write(line)
+
         #On affiche le resultat des 100 simulations pour la personne, tout ca dans le terminal, j'ai rien mis sous forme de graph
-        print("-------------------")
-        print("name:", name, ", min:", results_list[0], ", med:", results_list[len(results_list) // 2], ", max:", results_list[len(results_list) - 1])
+            print("-------------------")
+            print("name:", name, ", min:", results_list[0], ", med:", results_list[len(results_list) // 2], ", max:", results_list[len(results_list) - 1])
 
 
+    
 if __name__ == '__main__':
     main()

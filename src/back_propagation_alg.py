@@ -10,27 +10,38 @@ chatlog=[]
 time_propagation = []
 
 
-def back_propagation(pseudo, place):
+def back_propagation(pseudo, place, timemax, result):
     #print("pseudo : " + pseudo + ", place : " + str(place))
-    timemax = 0
+    for log in result:
+        if (pseudo == log):
+            return
+    result.append(pseudo)
     timemin = 0
-    if (place == 0):
-        print("patient 0 : " + pseudo)
-        return
+    keep = 0
+
     for i in range(len(time_propagation) - 1):
         if (time_propagation[i][1] < place and time_propagation[i + 1][1] >= place):
-            timemax = time_propagation[i + 1][0]
-            timemin = time_propagation[i][0]
-    if (timemax == 0):
-        return
-    
+            if (timemax == 0):
+                timemax = time_propagation[i + 1][0]
+            keep = time_propagation[i][0]
 
+
+    
+    rec = False
     # Récursivité
     for i in range(len(chatlog) - 1):
-        if (chatlog[i][0] == pseudo and chatlog[i][1] < timemax and chatlog[i][1] > timemin):
-            back_propagation(chatlog[i - 1][0], place - 1)
-            back_propagation(chatlog[i + 1][0], place - 1)
-    print("  pseudo : " + pseudo + ", place : " + str(place))
+        if (chatlog[i][1] > timemax):
+            break
+
+        if (chatlog[i][0] == pseudo and chatlog[i][1] > timemin):
+            rec = True
+            back_propagation(chatlog[i - 1][0], place - 1, chatlog[i][1], result)
+            back_propagation(chatlog[i + 1][0], place - 1, chatlog[i][1], result)
+    
+    if (rec == False and timemax <= time_propagation[0][0]):
+        print(pseudo)
+        #print(result)
+        return
 
 
 def main():
@@ -49,7 +60,8 @@ def main():
             time_propagation.append(tmp)
 
     # Start
-    back_propagation("vidaviya", 93)
+    result = []
+    back_propagation("vidaviya", 93, 0, result)
 
 
 

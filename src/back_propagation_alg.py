@@ -8,7 +8,7 @@ import datetime
 year = 2020
 chatlog=[]
 time_propagation = []
-
+Liste_plus_probable=[]
 
 def back_propagation(pseudo, place, timemax, result):
     #print("pseudo : " + pseudo + ", place : " + str(place))
@@ -38,9 +38,12 @@ def back_propagation(pseudo, place, timemax, result):
             back_propagation(chatlog[i - 1][0], place - 1, chatlog[i][1], result)
             back_propagation(chatlog[i + 1][0], place - 1, chatlog[i][1], result)
     
-    if (rec == False and timemax <= time_propagation[1][0]):
+    if (rec == False and timemax <= time_propagation[8][0]):
         print(pseudo)
         #print(result)
+        Liste_plus_probable.append(pseudo)
+        fichier=open('../data/guest3147.csv', 'a')
+        fichier.write(pseudo+"\n")
         return
 
 
@@ -49,7 +52,7 @@ def main():
     with open('../data/chatlog.txt', encoding="utf8") as f1:
         for (i,line) in enumerate(f1):
             tmp = []
-            tmp.append(line.split(': ')[0].split('] ')[1].split(' ')[0].lower())
+            tmp.append(line.split(': ')[0].split('] ')[1].split(' ')[0])
             tmp.append(datetime.datetime.strptime(line.split('] ')[0].split('[')[1] + ":" + str(year), '%H:%M:%S.%f:%Y').timestamp())
             chatlog.append(tmp)
     with open('../data/time_propagation.txt', encoding="utf8") as f1:
@@ -61,7 +64,7 @@ def main():
 
     # Start
     result = []
-    back_propagation("vidaviya", 93, 0, result)
+    back_propagation('guest3147', 442, 0, result)
 
 
 

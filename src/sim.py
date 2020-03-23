@@ -90,13 +90,13 @@ def fill_list(chat):
 def main():
     chat = []
     chat_parse(chat)
-    #name_list = ["g3nya", "Kao0", "Sarukog", "NahJoTV", "captainfarn", "frenchkowstar", "wollows", "NUCKTROOPER", "snowizz__", "attendspyro", "mrkabo77", "primzen0", "is0phys", "lolix_idontknow"]
-    name_list = fill_list(chat)
+    name_list = ['Sarukog','Baugih','Hypnotizzz','saltyasfukk','Exylos_','Sandw1sh','g3nya']
+#    name_list = fill_list(chat)
     Liste_plus_probable=[]
     print(name_list)
     for name in name_list:
         results_list = []
-        for i in range(100):
+        for i in range(1000):
             infected_tree = search_infected(chat, name)
             results_list.append(infected_tree.count())
         results_list.sort()

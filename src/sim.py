@@ -1,4 +1,5 @@
 import random
+from pyvis.network import Network
 ###############################################
 #       Creation d'un arbre d'infectes        #
 #Etonnament le programme tourne plutot pas mal#
@@ -6,8 +7,10 @@ import random
 
 #Arbre
 class Tree:
-    def __init__(self, name):
+    
+    def __init__(self, name, date):
         self.name = name
+        self.date = date
         self.children = []
 
     def count(self):
@@ -23,14 +26,14 @@ class Tree:
         for child in self.children:
             child.print()
 
-    def append(self, old, new):
+    def append(self, old, new, date):
         if not self:
             return False
         if self.name == old:
-            self.children.append(Tree(new))
+            self.children.append(Tree(new,date))
             return True
         for e in self.children:
-            if e.append(old, new):
+            if e.append(old, new, date):
                 return True
 
 #Message, stockes dans une liste
@@ -62,19 +65,19 @@ def chat_parse(chat):
 
 #Creation de l'arbre a partir d'un patient passe en argument
 def search_infected(chat, name):
-    infected_tree = Tree(name)
+    infected_tree = Tree(name,'00:00:00')
     infected_list = [name]
     #print(name, "est infecte")
     for i in range(1, len(chat) - 1):
         if chat[i].name in infected_list:
-            if random.uniform(0, 1) < 0.067 and not (chat[i - 1].name in infected_list):
+            if random.uniform(0, 1) < 0.058 and not (chat[i - 1].name in infected_list):
                 infected_list.append(chat[i - 1].name)
                 #print(chat[i - 1].name, "est infecte par", chat[i].name)
-                infected_tree.append(chat[i].name, chat[i - 1].name)
-            if random.uniform(0, 1) < 0.067 and not (chat[i + 1].name in infected_list):
+                infected_tree.append(chat[i].name, chat[i - 1].name, chat[i].date)
+            if random.uniform(0, 1) < 0.058 and not (chat[i + 1].name in infected_list):
                 infected_list.append(chat[i + 1].name)
                 #print(chat[i + 1].name, "est infecte par", chat[i].name)
-                infected_tree.append(chat[i].name, chat[i + 1].name)
+                infected_tree.append(chat[i].name, chat[i + 1].name, chat[i].date)
     return infected_tree
 
 #Recuperation de tous ceux qui ont parles dans les 5 premieres minutes
@@ -86,21 +89,43 @@ def fill_list(chat):
         name_list.add(message.name)
     return name_list
 
-
+#%%
+def generate_graph(arbre):
+    got_net = Network(height="750px", width="100%", bgcolor="#222222", font_color="white")
+    got_net.add_node(arbre.name,value=len(arbre.children),color='#00FF00')         
+    recursive(arbre,got_net,arbre.name)
+    got_net.show_buttons(filter_=['nodes'])
+#    network.Network.set_options()
+    got_net.show("test.html")
+    
+#%%
+def recursive(arbre,got_net,node_pere):
+    for child in arbre.children:
+        got_net.add_node(child.name,value=len(child.children))
+        got_net.add_edge(node_pere, child.name, title=child.date)
+        recursive(child,got_net,child.name)
+#%%
+    
 def main():
     chat = []
     chat_parse(chat)
-    name_list = ['Sarukog','Baugih','Hypnotizzz','saltyasfukk','Exylos_','Sandw1sh','g3nya']
+    name_list = ['Sarakzite']
 #    name_list = fill_list(chat)
     Liste_plus_probable=[]
     print(name_list)
     for name in name_list:
         results_list = []
-        for i in range(1000):
+        tri_list=[]
+        for i in range(10):
             infected_tree = search_infected(chat, name)
+            tri_list.append((infected_tree,infected_tree.count()))
             results_list.append(infected_tree.count())
         results_list.sort()
         if results_list[len(results_list) // 2]>300:
+            for arbre,nb in tri_list:
+                if nb==results_list[len(results_list) // 2]:
+                    arbre_median=arbre
+                    generate_graph(arbre_median)
             Liste_plus_probable.append(name)
             fichier=open('../data/Liste_plus_probable.csv', 'a')
             line=str(name)+ ","+ str(results_list[0])+ ","+ str(results_list[len(results_list) // 2])+ ","+ str(results_list[len(results_list) - 1])+"\n"

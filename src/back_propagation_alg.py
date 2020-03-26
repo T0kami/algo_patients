@@ -38,11 +38,11 @@ def back_propagation(pseudo, place, timemax, result):
             back_propagation(chatlog[i - 1][0], place - 1, chatlog[i][1], result)
             back_propagation(chatlog[i + 1][0], place - 1, chatlog[i][1], result)
     
-    if (rec == False and timemax <= time_propagation[8][0]):
+    if (rec == False and timemax <= time_propagation[1][0]):
         print(pseudo)
         #print(result)
         Liste_plus_probable.append(pseudo)
-        fichier=open('../data/guest3147.csv', 'a')
+        fichier=open('../data/Sarakzite.csv', 'a')
         fichier.write(pseudo+"\n")
         return
 
@@ -64,7 +64,7 @@ def main():
 
     # Start
     result = []
-    back_propagation('guest3147', 442, 0, result)
+    back_propagation('Sarakzite',10, 0, result)
 
 
 

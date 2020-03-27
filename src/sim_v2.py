@@ -85,8 +85,17 @@ class Tree:
             if e.update(name, status):
                 return True
     
-    
-    
+    def find(self, name):
+        if not self:
+            return False
+        if self.name == name:
+            return self
+        if len(self.children)==0:
+            return False
+        for e in self.children:
+            f=e.find(name)
+            if f:
+                return f
     
 # Message, stockes dans une liste
 class Message:
@@ -119,7 +128,7 @@ def chat_parse(chat):
 
 # Creation de l'arbre a partir d'un patient passe en argument
 def search_infected(chat, name, rate, rate_guerison):
-    infected_tree = Tree(name, '00:00:00')
+    infected_tree = Tree(name, 0)
     infected_list = [name]
     cured_list = []
     dead_list = []
@@ -134,22 +143,12 @@ def search_infected(chat, name, rate, rate_guerison):
                 infected_list.append(chat[i + 1].name)
                 # print(chat[i + 1].name, "est infecte par", chat[i].name)
                 infected_tree.append(chat[i].name, chat[i + 1].name, chat[i].date)
-            boolean=False
-            if random.uniform(0, 1) < rate_guerison/12.5:
-                for j in range(i-1,0,-1):
-                    if chat[j].name==chat[i].name: 
-                        if (chat[i].date-chat[j].date)>3600*24: 
-                            infected_tree.update(chat[i].name, 'dead')   
-                            dead_list.append(chat[i].name)
-                            boolean=True
-                        break   
-            elif random.uniform(0, 1) < rate_guerison and not boolean:
-                for j in range(i-1,0,-1):
-                    if chat[j].name==chat[i].name:
-                        if (chat[i].date-chat[j].date)>3600*24: 
-                            infected_tree.update(chat[i].name, 'cured')
-                            cured_list.append(chat[i].name)
-                        break
+            if random.uniform(0, 1) < rate_guerison/12.5 and (chat[i].date-infected_tree.find(chat[i].name).date)>3600*24*2:
+                infected_tree.update(chat[i].name, 'dead')   
+                dead_list.append(chat[i].name)
+            elif random.uniform(0, 1) < rate_guerison and (chat[i].date-infected_tree.find(chat[i].name).date)>3600*24*2:
+                infected_tree.update(chat[i].name, 'cured')
+                cured_list.append(chat[i].name)
      
     return infected_tree
 
@@ -167,7 +166,7 @@ def fill_list(chat):
 # %%
 def generate_graph(arbre):
     got_net = Network(height="100%", width="100%", bgcolor="#222222", font_color="white")
-    got_net.add_node(arbre.name, value=(len(arbre.children)*10), color='#FFFF00')
+    got_net.add_node(arbre.name, value=(1000*len(arbre.children)**5), color='#FFFF00')
     recursive(arbre, got_net, arbre.name)
     got_net.show_buttons()
     got_net.save_graph("../data/graphs/" + arbre.name + ".html")
@@ -177,11 +176,11 @@ def generate_graph(arbre):
 def recursive(arbre, got_net, node_pere):
     for child in arbre.children:
         if child.status=='infected':
-            got_net.add_node(child.name, value=(len(child.children)*10))
+            got_net.add_node(child.name, value=(1000*len(child.children)**5))
         if child.status=='cured':
-            got_net.add_node(child.name, value=(len(child.children)*10), color='#00FF00')
+            got_net.add_node(child.name, value=(1000*len(child.children)**5), color='#00FF00')
         if child.status=='dead':
-            got_net.add_node(child.name, value=(len(child.children)*10), color='#FF0000')            
+            got_net.add_node(child.name, value=(1000*len(child.children)**5), color='#FF0000')            
 
         got_net.add_edge(node_pere, child.name, title=child.date)
         recursive(child, got_net, child.name)
@@ -230,7 +229,7 @@ def main():
     chat=parsing_all_logs.parseur()
     name_list = ['Sarakzite']
     # name_list = fill_list(chat)
-    compute(chat, name_list, 0.065, 0.5, 20)
+    compute(chat, name_list, 0.07, 0.5, 20)
 
 
 if __name__ == '__main__':

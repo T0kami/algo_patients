@@ -3,6 +3,7 @@ import socketserver
 from urllib.parse import urlparse
 from urllib.parse import parse_qs
 
+import parsing_all_logs
 import sim
 
 
@@ -35,8 +36,7 @@ class MyHttpRequestHandler(http.server.SimpleHTTPRequestHandler):
                 elif iterations < 0 or iterations > 1000:
                     html = f"<html><head></head><body><h1>Iterations must be between 0 and 1000</h1></body></html>"
                 else:
-                    chat = []
-                    sim.chat_parse(chat)
+                    chat=parsing_all_logs.parseur()
                     name_list = [name]
                     # name_list = fill_list(chat)
                     sim.compute(chat, name_list, rate, iterations)
